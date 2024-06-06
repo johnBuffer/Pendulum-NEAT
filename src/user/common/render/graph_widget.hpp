@@ -69,7 +69,7 @@ struct GraphWidget
         size = size_;
         background = {size - 2.0f * outline_vec, background_radius, {50, 50, 50}};
         outline_background = {size, background_radius + outline, color};
-        chart = {Vec2{size.x, size.y - title_height} - 2.0f * (padding + outline_vec)};
+        chart = LineChart(Vec2{size.x, size.y - title_height} - 2.0f * (padding + outline_vec));
         chart.setColor(color);
         inner_size = {size.x - padding.x - outline, size.y - padding.y - outline - title_height};
     }
