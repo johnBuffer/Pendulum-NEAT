@@ -158,10 +158,10 @@ struct IterationState
     {
         auto const& state = pez::core::getSingleton<TrainingState>();
         iteration_idx.setString(toString(state.iteration));
-        gravity_gauge.setRatio(state.configuration.solver_gravity / 1000.0f);
+        gravity_gauge.setRatio(to<float>(state.configuration.solver_gravity) / 1000.0f);
         gravity_gauge.setTitle("Gravity (" + toString(state.configuration.solver_gravity, 0) + " /1000)");
 
-        friction_gauge.setRatio(state.configuration.solver_friction / max_friction);
+        friction_gauge.setRatio(to<float>(state.configuration.solver_friction) / max_friction);
         friction_gauge.setTitle("Friction (" + toString(state.configuration.solver_friction, 5) + ")");
 
         training_time.setString(getTrainingTime(state.iteration, conf::sel::population_size * conf::sel::max_iteration_time));
@@ -169,14 +169,14 @@ struct IterationState
     }
 
     [[nodiscard]]
-    std::string getTrainingTime(uint32_t iteration, float second_per_iteration) const
+    static std::string getTrainingTime(uint32_t iteration, float second_per_iteration)
     {
-        uint64_t const time = iteration * second_per_iteration;
+        auto const time = to<uint32_t>(to<float>(iteration) * second_per_iteration);
         uint32_t hours = time / 3600;
         uint32_t days = hours / 24;
         uint32_t years = days / 365;
 
-        days = days - years * 365;
+        days  = days - years * 365;
         hours = hours - days * 24 - years * 365 * 24;
 
         std::string const years_txt = (years < 2) ? "year" : "years";
@@ -191,9 +191,9 @@ struct IterationState
     }
 
     [[nodiscard]]
-    std::string getTrainingTimeRT(uint32_t iteration, float second_per_iteration) const
+    static std::string getTrainingTimeRT(uint32_t iteration, float second_per_iteration)
     {
-        uint64_t const time = iteration * second_per_iteration;
+        auto const time = to<uint32_t>(to<float>(iteration) * second_per_iteration);
         uint32_t minutes = time / 60;
         uint32_t hours = minutes / 60;
 

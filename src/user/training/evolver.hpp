@@ -46,14 +46,14 @@ struct Evolver
         {
             uint32_t i{0};
             for (const auto& g: old_generation) {
-                selector.addEntry(i, g.score);
+                selector.addEntry(i, to<float>(g.score));
                 ++i;
             }
         }
         selector.normalizeEntries();
 
         // Create new genomes
-        while (new_generation.size() < conf::sel::population_size) {
+        while (to<uint32_t>(new_generation.size()) < conf::sel::population_size) {
             const uint32_t genome_idx = selector.pick();
             new_generation.push_back(old_generation[genome_idx]);
             auto& new_genome = new_generation.back();

@@ -38,10 +38,10 @@ struct Stadium : public pez::core::IProcessor
             task->enable_disturbance = false;
             task->freeze_time = 0.0;
             // Set the task's score function
-            task->score_function = [](float pos_x, float out_sum, float dist_sum) {
-                float const dist_to_center_penalty = std::abs(1.0f - std::abs(pos_x));
+            task->score_function = [](pbd::RealType pos_x, pbd::RealType out_sum, pbd::RealType dist_sum) {
+                pbd::RealType const dist_to_center_penalty = std::abs(1.0 - std::abs(pos_x));
                 //return 100.0f / (1.0f + dist_sum + out_sum) * dist_to_center_penalty;
-                return 1.0f / (1.0f + out_sum * 0.5f ) * dist_to_center_penalty;
+                return 1.0 / (1.0 + out_sum * 0.5) * dist_to_center_penalty;
                 //return 100.0f;
             };
         }
@@ -139,9 +139,9 @@ struct Stadium : public pez::core::IProcessor
             saveBest(true);
         }
         auto& renderer = pez::core::getRenderer<training::Renderer>();
-        renderer.training_renderer.gravity_plot.addValue(state.configuration.solver_gravity);
-        renderer.training_renderer.friction_plot.addValue(state.configuration.solver_friction);
-        renderer.training_renderer.fitness.addValue(pez::core::get<AgentInfo>(0).score);
+        renderer.training_renderer.gravity_plot.addValue(to<float>(state.configuration.solver_gravity));
+        renderer.training_renderer.friction_plot.addValue(to<float>(state.configuration.solver_friction));
+        renderer.training_renderer.fitness.addValue(to<float>(pez::core::get<AgentInfo>(0).score));
     }
 
     /// Initializes the iteration

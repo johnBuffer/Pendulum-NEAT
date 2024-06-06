@@ -119,7 +119,7 @@ struct GraphWidget
         uint32_t const count = chart.values.getCount();
         float const dx = chart.size.x / float(count - 1);
         chart.values.foreach([&](uint32_t i, float v) {
-            float const x = i * dx + position.x + padding.x + outline;
+            float const x = to<float>(i) * dx + position.x + padding.x + outline;
 
             uint32_t const current_i = chart.getGlobalValueIndex(i);
             if (current_i % tick_x_period == 0) {
@@ -142,12 +142,12 @@ struct GraphWidget
         float const    y_width      = std::abs(chart.extremes.y - chart.extremes.x);
         float const    tick_height_raw = y_width / float(tick_count);
         float const    tick_height = std::max(1.0f, std::ceil(tick_height_raw / height_round)) * height_round;
-        uint32_t const ticks = y_width / tick_height + 1;
-        float const lower_tick = int32_t(chart.extremes.x / tick_height) * tick_height;
+        uint32_t const ticks = to<uint32_t>(y_width / tick_height) + 1;
+        float const lower_tick = to<int32_t>(chart.extremes.x / tick_height) * tick_height;
         for (uint32_t i{0}; i < ticks; ++i) {
             sf::Vertex vertex{};
             vertex.color = scale_color;
-            float const y = chart.getScaledY(lower_tick + i * tick_height);
+            float const y = chart.getScaledY(lower_tick + to<float>(i) * tick_height);
             if (y >= chart.position.y) {
                 vertex.position = {position.x + padding.x + outline, y};
                 va_scale.append(vertex);
@@ -162,9 +162,9 @@ struct GraphWidget
         chart.render(context);
 
         for (uint32_t i{0}; i < ticks; ++i) {
-            float const y = chart.getScaledY(lower_tick + i * tick_height);
+            float const y = chart.getScaledY(lower_tick + to<float>(i) * tick_height);
             if (y >= chart.position.y) {
-                scale_label.setString(toString(lower_tick + i * tick_height, y_width < 10.0f));
+                scale_label.setString(toString(lower_tick + to<float>(i) * tick_height, y_width < 10.0f));
                 auto const bounds = scale_label.getGlobalBounds();
                 scale_label.setPosition(position.x + size.x - padding.x - bounds.width - 5.0f, y);
                 context.drawDirect(scale_label);

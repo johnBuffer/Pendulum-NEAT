@@ -20,8 +20,8 @@ struct Solver
     siv::IndexVector<DragConstraint>      drag_constraints;
     siv::IndexVector<ObjectPinConstraint> object_pins;
 
-    Vec2D gravity  = {0.0, 300.0};
-    float friction = 0.01f;
+    Vec2D         gravity  = {0.0, 1000.0};
+    pbd::RealType friction = 0.0;
 
     uint32_t sub_steps{2};
 

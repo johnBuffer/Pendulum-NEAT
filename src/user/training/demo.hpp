@@ -12,11 +12,10 @@ struct Demo : public pez::core::IProcessor
     TrainingState&  state;
     tp::ThreadPool& thread_pool;
 
-    float time        = 0.0f;
     bool  initialized = false;
 
-    bool enable_disturbance = false;
-    float max_friction      = 0.0f;
+    bool          enable_disturbance = false;
+    pbd::RealType max_friction       = 0.0;
 
     Demo()
         : state{pez::core::getSingleton<TrainingState>()}
@@ -38,8 +37,6 @@ struct Demo : public pez::core::IProcessor
         }
 
         updateAgents(dt);
-
-        time += dt;
     }
 
     static Scene& getBest()

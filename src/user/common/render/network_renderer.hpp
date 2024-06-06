@@ -118,8 +118,8 @@ struct NetworkRenderer
             if (i >= nw.info.inputs && i < nw.info.inputs + nw.info.outputs && n.depth == 0) {
                 node.layer = 1;
             }
-            node.position.x = total_padding + label_offset + node.layer * (node_radius * 2.0f + node_spacing.x);
-            node.position.y = total_padding + architecture.layers[node.layer] * (node_radius * 2.0f + (i ? node_spacing.y : 0.0f));
+            node.position.x = total_padding + label_offset + to<float>(node.layer) * (node_radius * 2.0f + node_spacing.x);
+            node.position.y = total_padding + to<float>(architecture.layers[node.layer]) * (node_radius * 2.0f + (i ? node_spacing.y : 0.0f));
             //assert(n.depth < layers.size());
             ++architecture.layers[node.layer];
         }
@@ -132,7 +132,7 @@ struct NetworkRenderer
         size.y = max_layer_height + 2.0f * total_padding;
         // Add room for network info
         if (!disable_info) {
-            size.y += 2.0f * text_label.getCharacterSize() + 2.0f * node_radius;
+            size.y += 2.0f * to<float>(text_label.getCharacterSize()) + 2.0f * node_radius;
         }
 
         for (auto& n : nodes) {
@@ -259,7 +259,7 @@ struct NetworkRenderer
         for (uint32_t i{0}; i < network->connection_count; ++i) {
             auto& c = connections[i];
 
-            c.width = network->getConnection(i).value * 20.0f;
+            c.width = to<float>(network->getConnection(i).value) * 20.0f;
             float const sign = Math::sign(c.width.get());
             float const width = std::max(1.0f, std::min(node_radius, std::abs(c.width.get())));
 
@@ -272,9 +272,9 @@ struct NetworkRenderer
             network->foreachNode([this](nt::Network::Node const& n, uint32_t i) {
                 float value;
                 if (i < network->info.inputs) {
-                    value = n.sum;
+                    value = to<float>(n.sum);
                 } else {
-                    value = n.getValue();
+                    value = to<float>(n.getValue());
                 }
                 nodes[i].value.setValueInstant(Math::clampAmplitude(value, 1.0f));
             });
@@ -292,17 +292,6 @@ struct NetworkRenderer
     [[nodiscard]]
     float getLayerHeight(uint32_t height) const
     {
-        return height * (2.0f * node_radius + node_spacing.y) - node_spacing.y + node_radius;
-    }
-
-    void resize(Vec2 requested_size)
-    {
-        if (!network) {
-            std::cout << "Cannot resize before initialization." << std::endl;
-            return;
-        }
-        auto const layer_size = getMax<uint32_t>(architecture.layers, [](uint32_t x) {return x;});
-        float const available_height = requested_size.y - 2.0f * margin;
-
+        return to<float>(height) * (2.0f * node_radius + node_spacing.y) - node_spacing.y + node_radius;
     }
 };

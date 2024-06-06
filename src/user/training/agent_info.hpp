@@ -6,12 +6,14 @@
 #include "user/common/neat/genome.hpp"
 #include "user/common/neat/network_generator.hpp"
 
+#include "user/common/physic/configuration.hpp"
+
 
 struct AgentInfo : public pez::core::Entity
 {
     /// Attributes
-    float        score = 0.0f;
-    nt::Genome   genome;
+    pbd::RealType score = 0.0f;
+    nt::Genome    genome;
 
     /// Methods
     AgentInfo() = default;

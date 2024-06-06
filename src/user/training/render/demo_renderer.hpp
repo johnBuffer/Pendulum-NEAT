@@ -160,7 +160,6 @@ struct DemoRenderer
 
     void render(pez::render::Context& context)
     {
-        auto&       state      = pez::core::getSingleton<TrainingState>();
         auto const& scene_best = pez::core::get<Scene>(0);
 
         background_outline.render(context);
@@ -182,7 +181,7 @@ struct DemoRenderer
         // Disturbance
         Disturbances::Push const& push = scene_best.getCurrentPush();
         if (scene_best.isActive(push)) {
-            float const force = push.force;
+            auto const force = to<float>(push.force);
             Vec2 const size{8, 5};
             sf::RectangleShape arrow{size};
             arrow.setOrigin(size.x, size.y * 0.5f);
@@ -199,15 +198,15 @@ struct DemoRenderer
         network_renderer.render(context);
 
         // Graphs
-        output_plot.addValue(scene_best.network.output[0] * scene_best.configuration.max_accel * 0.01);
+        output_plot.addValue(to<float>(scene_best.network.output[0] * scene_best.configuration.max_accel * 0.01));
         output_plot.render(context);
 
         auto const& system = scene_best.agent.system;
-        float const angle_1 = 270.0f - Math::radToDeg(system.objects[0].angle);
+        auto const angle_1 = to<float>(270.0 - Math::radToDeg(system.objects[0].angle));
         visu_angle_1.addValue(angle_1);
         visu_angle_1.render(context);
 
-        float const angle_2 = Math::radToDeg(system.objects[0].angle) - Math::radToDeg(system.objects[1].angle);
+        auto const angle_2 = to<float>(Math::radToDeg(system.objects[0].angle) - Math::radToDeg(system.objects[1].angle));
         visu_angle_2.addValue(angle_2);
         visu_angle_2.render(context);
 
@@ -218,7 +217,7 @@ struct DemoRenderer
 
         scene_state.setAiState(scene_best.enable_ai);
         scene_state.setDisturbanceState(scene_best.enable_disturbance);
-        scene_state.setTime(scene_best.current_time - scene_best.freeze_time);
+        scene_state.setTime(to<float>(scene_best.current_time - scene_best.freeze_time));
         scene_state.render(context);
     }
 

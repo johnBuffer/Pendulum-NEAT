@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "user/common/physic/configuration.hpp"
 #include "user/common/configuration.hpp"
 
 
@@ -7,19 +8,19 @@ struct TrainingState
 {
     struct IterationConfiguration
     {
-        float solver_friction   = 0.003f;
-        float solver_gravity    = 1.0f;
-        float solver_compliance = 0.0000f;
-        float max_speed         = 800.0f;
-        float max_accel         = 10000.0f;
+        pbd::RealType solver_friction   = 0.003;
+        pbd::RealType solver_gravity    = 1.0;
+        pbd::RealType solver_compliance = 0.0000;
+        pbd::RealType max_speed         = 800.0;
+        pbd::RealType max_accel         = 10000.0;
 
         uint32_t task_sub_steps   = 1;
         uint32_t solver_sub_steps = 8;
     };
 
-    uint32_t iteration             = 0;
-    uint32_t iteration_exploration = 0;
-    float    iteration_best_score  = 0.0f;
+    uint32_t      iteration             = 0;
+    uint32_t      iteration_exploration = 0;
+    pbd::RealType iteration_best_score  = 0.0f;
 
     IterationConfiguration configuration;
 

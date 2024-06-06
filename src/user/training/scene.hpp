@@ -40,7 +40,7 @@ struct Scene : public training::Task
     pbd::RealType dist_sum = 0.0;
     pbd::RealType last_out = 0.0;
 
-    using ScoreFunction = std::function<float(float, float, float)>;
+    using ScoreFunction = std::function<pbd::RealType(pbd::RealType, pbd::RealType, pbd::RealType)>;
     ScoreFunction score_function = nullptr;
 
     explicit
@@ -105,14 +105,14 @@ struct Scene : public training::Task
         }
     }
 
-    void updateAI(nt::conf::RealType dt)
+    void updateAI(pbd::RealType dt)
     {
-        nt::conf::RealType const pos_x     = (agent.getBasePosition().x - conf::sim::world_size.x * 0.5f) / (conf::sim::slider_length * 0.5f);
-        Agent::Vec2Real    const dir_1     = agent.getDirection(0);
-        nt::conf::RealType const ang_vel_1 = agent.getAngularVec(0);
-        Agent::Vec2Real    const dir_2     = agent.getDirection(1);
-        nt::conf::RealType const ang_vel_2 = agent.getAngularVec(1);
-        nt::conf::RealType const dot_1_2   = MathVec2::dot(dir_1, dir_2);
+        pbd::RealType const   pos_x     = (agent.getBasePosition().x - conf::sim::world_size.x * 0.5f) / (conf::sim::slider_length * 0.5f);
+        Agent::Vec2Real const dir_1     = agent.getDirection(0);
+        pbd::RealType const   ang_vel_1 = agent.getAngularVec(0);
+        Agent::Vec2Real const dir_2     = agent.getDirection(1);
+        pbd::RealType const   ang_vel_2 = agent.getAngularVec(1);
+        pbd::RealType const   dot_1_2   = MathVec2::dot(dir_1, dir_2);
 
         if (enable_ai) {
             if (conf::net::control_type == conf::ControlType::Acceleration) {
@@ -144,16 +144,17 @@ struct Scene : public training::Task
             updateCartPosition(dt);
         }
 
-        float const delta = std::pow((network.output[0] - last_out) * 10.0f, 2.0f);
+        pbd::RealType const delta = std::abs(network.output[0] - last_out);
+        pbd::RealType const pos_y = agent.getTipPosition().y;
+
         last_out = network.output[0];
         out_sum  += delta;
         dist_sum += std::abs(network.output[0]);
 
-        float const pos_y = agent.getTipPosition().y;
         if (score_function) {
-            float const margin    = 0.1f;
-            float const height    = (float(conf::sim::segments_count) - margin) * conf::sim::segment_size;
-            float const threshold = conf::sim::world_size.y * 0.5f - height;
+            pbd::RealType const margin    = 0.1;
+            pbd::RealType const height    = (float(conf::sim::segments_count) - margin) * conf::sim::segment_size;
+            pbd::RealType const threshold = conf::sim::world_size.y * 0.5f - height;
             if (pos_y < threshold) {
                 getAgentInfo().score += dt * score_function(pos_x, out_sum, dist_sum);
             }

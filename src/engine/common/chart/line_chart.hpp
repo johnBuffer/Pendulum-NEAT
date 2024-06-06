@@ -4,6 +4,7 @@
 #include "engine/engine.hpp"
 #include "engine/common/math.hpp"
 #include "engine/common/racc.hpp"
+#include "engine/common/utils.hpp"
 #include "engine/render/render_context.hpp"
 
 
@@ -64,12 +65,12 @@ struct LineChart
 
         va_area.resize(2 * count);
         values.foreach([&](uint32_t i, float v) {
-            float const normalized_x = i * dx + position.x;
+            float const normalized_x = to<float>(i) * dx + position.x;
             float const scaled_y     = getScaledY(v);
             va_area[2 * i].position = {normalized_x, scaled_y};
 
             float const alpha_ratio = std::abs(v) * alpha_max_height;
-            uint8_t const alpha = std::min(1.0f, 2.0f * alpha_ratio) * 150;
+            auto const  alpha       = to<uint8_t>(std::min(1.0f, 2.0f * alpha_ratio) * 150.0f);
             sf::Color const area_color{color.r, color.g, color.b, alpha};
             va_area[2 * i].color = area_color;
 
@@ -150,12 +151,8 @@ struct LineChart
         return {px, py}; // return statement
     }
 
-    void render(pez::render::Context& context)
+    void render(pez::render::Context& context) const
     {
-        /*sf::RectangleShape background{size};
-        background.setPosition(position);
-        context.drawDirect(background);*/
-
         if (draw_area) {
             context.drawDirect(va_area);
         }
