@@ -1,6 +1,6 @@
 #pragma once
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 #undef min
 #undef max
