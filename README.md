@@ -1,1 +1,1 @@
-# Walker
+# Pendulum NEAT
