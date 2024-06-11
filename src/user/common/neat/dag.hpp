@@ -34,7 +34,7 @@ struct DAG
             //std::cout << "Cannot create connection " << from << " -> " << to << ": " << from << " is not valid" << std::endl;
             return false;
         }
-        if (!isValid(from)) {
+        if (!isValid(to)) {
             //std::cout << "Cannot create connection " << from << " -> " << to << ": " << to << " is not valid" << std::endl;
             return false;
         }
