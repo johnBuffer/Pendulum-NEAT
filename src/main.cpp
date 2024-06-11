@@ -12,6 +12,7 @@ int main()
 {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
+    settings.depthBits = conf::win::bit_depth;
     pez::render::WindowContextHandler app("Pendulum - Training", sf::Vector2u(conf::win::window_width, conf::win::window_height), settings, sf::Style::Fullscreen);
     training::loadResources();
     training::registerSystems();

@@ -15,6 +15,7 @@ namespace win
 {
     constexpr uint32_t window_width  = 2560;
     constexpr uint32_t window_height = 1440;
+    constexpr uint32_t bit_depth = 24;
 
     //constexpr uint32_t window_width  = 1600;
     //constexpr uint32_t window_height = 900;
