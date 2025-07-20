@@ -6,6 +6,9 @@
 #include "engine/common/utils.hpp"
 #include "engine/common/smooth/smooth_value.hpp"
 #include "user/common/neat/network.hpp"
+
+#include "engine/common/quad_vertex_array.hpp"
+
 #include "./card.hpp"
 
 
@@ -55,9 +58,9 @@ struct NetworkRenderer
 
     NetworkArchitecture architecture;
 
-    sf::Text    text_label;
+    sf::Text                 text_label;
     std::vector<std::string> labels;
-    float        label_offset = 0.0f;
+    float                    label_offset = 0.0f;
 
     float margin = node_radius + 5.0f;
     nt::Network const* network{nullptr};
@@ -67,7 +70,7 @@ struct NetworkRenderer
     Vec2 size     = {};
     Vec2 position = {};
 
-    sf::VertexArray connections_va;
+    pez::QuadVertexArray connections_va;
 
     float background_outline_thickness = 5.0f;
     float background_padding           = 20.0f;
@@ -77,15 +80,12 @@ struct NetworkRenderer
 
     bool disable_info = false;
 
-    NetworkRenderer()
-        : background({}, 20.0f, {50, 50, 50})
+    explicit
+    NetworkRenderer(sf::Font const& font)
+        : text_label{font, "", 16}
+        , background({}, 20.0f, {50, 50, 50})
         , background_outline({}, 20.0f + background_outline_thickness, sf::Color::White)
-    {}
-
-    void setFont(sf::Font& font)
     {
-        text_label.setFont(font);
-        text_label.setCharacterSize(16);
         text_label.setFillColor(sf::Color::White);
     }
 
@@ -100,7 +100,7 @@ struct NetworkRenderer
         label_offset = 0.0f;
         for (auto const& l : labels) {
             text_label.setString(l);
-            label_offset = std::max(label_offset + margin * 0.5f, text_label.getGlobalBounds().width);
+            label_offset = std::max(label_offset + margin * 0.5f, text_label.getGlobalBounds().size.x);
         }
 
         // Create nodes
@@ -162,16 +162,16 @@ struct NetworkRenderer
         }
 
         {
-            connections_va = sf::VertexArray(sf::Quads, 4 * connections.size());
+            connections_va.resize(connections.size());
             uint32_t i{0};
             for (auto const& c : connections) {
-                common::Utils::generateLine(connections_va, 4 * i, c.start, c.end, 2.0f, sf::Color::White);
+                connections_va.createLine(i, c.start, c.end, 2.0f, sf::Color::White);
                 ++i;
             }
         }
     }
 
-    void setPosition(Vec2 pos)
+    void setPosition(Vec2 const pos)
     {
         position = pos;
         // Background
@@ -197,11 +197,11 @@ struct NetworkRenderer
         sf::Transform transform;
         transform.translate(position);
 
-        context.drawDirect(connections_va, transform);
+        context.drawDirect(connections_va.asVertexArray(), transform);
 
         float const out_radius = node_radius + 3.0f;
         sf::CircleShape shape{out_radius};
-        shape.setOrigin(out_radius, out_radius);
+        shape.setOrigin({out_radius, out_radius});
         shape.setOutlineColor(sf::Color::White);
         shape.setFillColor(sf::Color::Black);
         shape.setOutlineThickness(2.0f);
@@ -213,7 +213,7 @@ struct NetworkRenderer
 
             float const radius = std::min(n.value.get(), 1.0f) * node_radius;
             sf::CircleShape shape_in{radius};
-            shape_in.setOrigin(radius, radius);
+            shape_in.setOrigin({radius, radius});
             sf::Color const color = (n.value.get() > 0.0f) ? sf::Color{188, 226, 158} : sf::Color{255, 135, 135};
             shape_in.setFillColor(color);
             shape_in.setPosition(n.position);
@@ -227,8 +227,8 @@ struct NetworkRenderer
         float label_y = 4.0f;
         for (auto const& l : labels) {
             text_label.setString(l);
-            float const width = text_label.getGlobalBounds().width;
-            text_label.setPosition(total_padding + label_offset - width - 12.0f, total_padding + label_y);
+            float const width = text_label.getGlobalBounds().size.x;
+            text_label.setPosition({total_padding + label_offset - width - 12.0f, total_padding + label_y});
             label_y += 2.0f * node_radius + node_spacing.y;
             context.drawDirect(text_label, transform);
         }
@@ -241,10 +241,10 @@ struct NetworkRenderer
             va_line[1].position = {size.x - total_padding, total_padding + max_layer_height + 1.0f * node_radius};
             context.drawDirect(va_line, transform);
 
-            text_label.setPosition(total_padding, total_padding + max_layer_height + 1.5f * node_radius);
+            text_label.setPosition({total_padding, total_padding + max_layer_height + 1.5f * node_radius});
             text_label.setString("Hidden nodes: " + toString(network->info.hidden) + "\nConnections : " +
                                  toString(network->connection_count));
-            if (text_label.getGlobalBounds().width < (size.x - 50.0f)) {
+            if (text_label.getGlobalBounds().size.x < (size.x - 50.0f)) {
                 context.drawDirect(text_label, transform);
             }
         }
@@ -264,7 +264,7 @@ struct NetworkRenderer
             float const width = std::max(1.0f, std::min(node_radius, std::abs(c.width.get())));
 
             sf::Color const color = (sign > 0.0f) ? sf::Color{188, 226, 158} : sf::Color{255, 135, 135};
-            common::Utils::generateLine(connections_va, 4 * i, c.start, c.end, width, color);
+            connections_va.createLine(i, c.start, c.end, width, color);
             ++i;
         }
 

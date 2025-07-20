@@ -8,7 +8,9 @@ ResourceManager::ResID ResourceManager::registerTexture(const std::string& filen
 {
     const ResID id = textures.size();
     textures[id]   = std::make_unique<sf::Texture>();
-    textures[id]->loadFromFile(filename);
+    if (!textures[id]->loadFromFile(filename)) {
+        std::cout << "Couldn't load texture '" << filename << "'" << std::endl;
+    }
     //textures[id]->generateMipmap();
     //textures[id]->setSmooth(true);
     // Update name to id
@@ -21,7 +23,9 @@ ResourceManager::ResID ResourceManager::registerImage(const std::string& filenam
 {
     const ResID id = images.size();
     images[id]     = std::make_unique<sf::Image>();
-    images[id]->loadFromFile(filename);
+    if (!images[id]->loadFromFile(filename)) {
+        std::cout << "Couldn't load image '" << filename << "'" << std::endl;
+    }
     // Update name to id
     name_to_id_images[asset_name] = id;
     // Return image id
@@ -50,9 +54,6 @@ sf::Image& ResourceManager::getImage(const std::string &name)
 
 void ResourceManager::clear()
 {
-    for (auto& img : images) {
-        //img.second.reset();
-    }
 }
 
 sf::Texture& ResourceManager::getTexture(const std::string &name)
@@ -65,11 +66,13 @@ ResourceManager::ResID ResourceManager::registerFont(const std::string& filename
     const uint64_t res_id = fonts.size();
     name_to_id_fonts[asset_name] = res_id;
     fonts[res_id] = std::make_unique<sf::Font>();
-    fonts[res_id]->loadFromFile(filename);
+    if (!fonts[res_id]->openFromFile(filename)) {
+        std::cout << "Couldn't load font '" << filename << "'" << std::endl;
+    }
     return res_id;
 }
 
-sf::Font& ResourceManager::getFont(ResourceManager::ResID id)
+sf::Font& ResourceManager::getFont(ResID const id)
 {
     return *fonts[id];
 }

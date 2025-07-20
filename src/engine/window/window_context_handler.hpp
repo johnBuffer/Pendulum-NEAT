@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "engine/common/vec.hpp"
-#include "engine/common/event_manager.hpp"
+#include "engine/common/events.hpp"
 #include "engine/engine.hpp"
 
 namespace pez::render
@@ -12,12 +12,11 @@ class WindowContextHandler
 public:
     WindowContextHandler(const std::string& window_name,
                          UVec2 window_size,
-                         sf::ContextSettings settings,
-                         uint32_t style = sf::Style::Default,
-                         uint32_t thread_count = 0)
-         : m_window{sf::VideoMode{window_size.x, window_size.y}, window_name, style, settings}
-         , m_event_manager(m_window, true)
-         , m_render_context(nullptr)
+                         sf::ContextSettings const& settings,
+                         sf::State const state,
+                         uint32_t const thread_count = 0)
+         : m_window{sf::VideoMode{{window_size.x, window_size.y}}, window_name, sf::Style::Default, state, settings}
+         , m_event_manager{m_window}
     {
         m_window.setFramerateLimit(60);
         // Initialize Engine and its sub systems
@@ -36,8 +35,8 @@ public:
 
     void registerDefaultCallbacks(bool use_viewport_callbacks)
     {
-        m_event_manager.addEventCallback(sf::Event::EventType::Closed, [&](sfev::CstEv) { exit(); });
-        m_event_manager.addKeyPressedCallback(sf::Keyboard::Escape, [&](sfev::CstEv) { exit(); });
+        m_event_manager.addCallback<sf::Event::Closed>([&](sf::Event::Closed const&) { exit(); });
+        m_event_manager.onKeyPressed(sf::Keyboard::Key::Escape, [&](sf::Event::KeyPressed const&) { exit(); });
         m_render_context->registerCallbacks(m_event_manager, use_viewport_callbacks);
     }
 
@@ -80,7 +79,7 @@ public:
         return m_running;
     }
 
-    sfev::EventManager& getEventManager()
+    EventHandler& getEventManager()
     {
         return m_event_manager;
     }
@@ -103,10 +102,10 @@ public:
     }
 
 private:
-    sf::RenderWindow   m_window;
-    Context*           m_render_context = nullptr;
-    bool               m_running        = true;
-    sfev::EventManager m_event_manager;
-    bool               m_is_framerate_locked = true;
+    sf::RenderWindow m_window;
+    Context*         m_render_context = nullptr;
+    bool             m_running        = true;
+    EventHandler     m_event_manager;
+    bool             m_is_framerate_locked = true;
 };
 }

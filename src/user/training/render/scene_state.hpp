@@ -14,14 +14,14 @@ struct SceneState
     Vec2  const outline_vec       = {outline, outline};
     sf::Color   color             = sf::Color::White;
 
-    Vec2       size;
-    Vec2       position;
-    Card       background;
-    Card       outline_background;
-    sf::Font*  font;
-    sf::Text   title;
-    sf::Text   iteration_idx;
-    float      font_scale = 1.0f;
+    Vec2            size;
+    Vec2            position;
+    Card            background;
+    Card            outline_background;
+    sf::Font const& font;
+    sf::Text        title;
+    sf::Text        iteration_idx;
+    float           font_scale = 1.0f;
 
     // AI state
     sf::Text ai_state_label;
@@ -34,43 +34,30 @@ struct SceneState
     sf::CircleShape disturbance_state;
 
     explicit
-    SceneState(Vec2 size_, Vec2 position_ = {})
+    SceneState(Vec2 const size_, Vec2 const position_ = {})
         : size{size_}
         , position{position_}
         , background{size - 2.0f * outline_vec, background_radius, {50, 50, 50}}
         , outline_background{size, background_radius + outline, color}
-        , font{&pez::resources::getFont("font")}
+        , font{pez::resources::getFont("font")}
         , ai_state{8.0f}
         , disturbance_state{8.0f}
+        , title{font, "", 48}
+        , iteration_idx{font, "", 48}
+        , ai_state_label{font, "AI state", 16}
+        , ai_state_text{font, "", 24}
+        , disturbance_state_label{font, "Disturbance", 16}
+        , disturbance_state_text{font, "", 24}
     {
-        title.setString("");
-        title.setFont(*font);
-        title.setCharacterSize(48);
         title.setFillColor(sf::Color::White);
-
-        iteration_idx.setString("");
-        iteration_idx.setFont(*font);
-        iteration_idx.setCharacterSize(48);
         iteration_idx.setFillColor(sf::Color::White);
-
-        ai_state_label.setString("AI state");
-        ai_state_label.setFont(*font);
-        ai_state_label.setCharacterSize(16);
         ai_state_label.setFillColor({150, 150, 150});
-
-        ai_state_text.setFont(*font);
-        ai_state_text.setCharacterSize(24);
         ai_state_text.setFillColor(sf::Color::White);
-
-        disturbance_state_label = ai_state_label;
-        disturbance_state_label.setString("Disturbance");
-
-        disturbance_state_text = ai_state_text;
 
         setPosition(position);
     }
 
-    void setSize(Vec2 size_)
+    void setSize(Vec2 const size_)
     {
         size = size_;
         background = {size - 2.0f * outline_vec, background_radius, {50, 50, 50}};
@@ -97,18 +84,18 @@ struct SceneState
         iteration_idx.setPosition({position_.x + margin, current_y});
 
         current_y += 40.0f;
-        ai_state_label.setPosition(position_.x + margin, current_y);
+        ai_state_label.setPosition({position_.x + margin, current_y});
 
         current_y += 30.0f;
-        ai_state_text.setPosition(position_.x + margin + 30.0f, current_y - 8.0f);
-        ai_state.setPosition(position_.x + margin + 5.0f, current_y);
+        ai_state_text.setPosition({position_.x + margin + 30.0f, current_y - 8.0f});
+        ai_state.setPosition({position_.x + margin + 5.0f, current_y});
 
         current_y += 32.0f;
-        disturbance_state_label.setPosition(position_.x + margin, current_y);
+        disturbance_state_label.setPosition({position_.x + margin, current_y});
 
         current_y += 30.0f;
-        disturbance_state_text.setPosition(position_.x + margin + 30.0f, current_y - 8.0f);
-        disturbance_state.setPosition(position_.x + margin + 5.0f, current_y);
+        disturbance_state_text.setPosition({position_.x + margin + 30.0f, current_y - 8.0f});
+        disturbance_state.setPosition({position_.x + margin + 5.0f, current_y});
     }
 
     void render(pez::render::Context& context)
@@ -118,7 +105,7 @@ struct SceneState
         background.renderHud(context);
 
         // Render title
-        title.setScale(font_scale, font_scale);
+        title.setScale({font_scale, font_scale});
         context.drawDirect(title);
 
         // Render AI state

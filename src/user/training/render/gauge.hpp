@@ -15,18 +15,16 @@ struct Gauge
     EmptyCard outline;
     Card      value;
 
-    sf::Text title;
     sf::Font& font;
+    sf::Text title;
 
     Gauge()
         : outline{{}, 0.0f, sf::Color::White}
         , value{{}, 0.0f, sf::Color::White}
         , font{pez::resources::getFont("font")}
+        , title{font, "Title", 16}
     {
-        title.setFont(font);
-        title.setCharacterSize(16);
         title.setFillColor({150, 150, 150});
-        title.setString("Title");
     }
 
     void render(pez::render::Context& context)
@@ -50,7 +48,7 @@ struct Gauge
     {
         position = position_;
         title.setPosition(position);
-        float const title_height = title.getGlobalBounds().height + text_padding;
+        float const title_height = title.getGlobalBounds().size.y + text_padding;
         outline.position = position + Vec2{0.0f, title_height};
 
         float const total_padding = outline_thickness + padding;

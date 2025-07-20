@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "engine/engine.hpp"
+#include "engine/common/quad_vertex_array.hpp"
 
 #include "cart.hpp"
 #include "user/common/configuration.hpp"
@@ -18,11 +19,11 @@ struct AgentRenderer
 
     uint8_t alpha = 50;
 
-    sf::VertexArray va_links;
+    pez::QuadVertexArray va_links;
     Cart cart;
 
     AgentRenderer()
-        : va_links{sf::PrimitiveType::Quads, conf::sim::segments_count * 4}
+        : va_links{conf::sim::segments_count}
     {
 
     }
@@ -62,16 +63,15 @@ struct AgentRenderer
         // Links
         uint32_t i{0};
         for (auto const& o : agent.system.objects) {
-            common::Utils::generateLine(va_links,
-                                        i * 4,
-                                        Vec2{o.getWorldPosition(0)},
-                                        Vec2{o.getWorldPosition(1)},
-                                        4.0f,
-                                        color,
-                                        2.0f * (outline + radius));
+            va_links.createLine(i,
+                                Vec2{o.getWorldPosition(0)},
+                                Vec2{o.getWorldPosition(1)},
+                                4.0f,
+                                color,
+                                2.0f * (outline + radius));
             ++i;
         }
-        context.draw(va_links);
+        context.draw(va_links.asVertexArray());
 
         // Cart
         cart.color = color;
@@ -81,7 +81,7 @@ struct AgentRenderer
         // Objects
         i = 0;
         sf::CircleShape object{radius};
-        object.setOrigin(radius, radius);
+        object.setOrigin({radius, radius});
         object.setFillColor(getJointColor(mode, i));
         object.setOutlineColor(color);
         object.setOutlineThickness(outline);

@@ -13,14 +13,14 @@ struct IterationState
     Vec2  const outline_vec       = {outline, outline};
     sf::Color   color             = sf::Color::White;
 
-    Vec2       size;
-    Vec2       position;
-    Card       background;
-    Card       background_outline;
-    sf::Font*  font;
-    sf::Text   title;
-    sf::Text   iteration_idx;
-    float      font_scale = 1.0f;
+    Vec2            size;
+    Vec2            position;
+    Card            background;
+    Card            background_outline;
+    sf::Font const& font;
+    sf::Text        title;
+    sf::Text        iteration_idx;
+    float           font_scale = 1.0f;
 
 
     Gauge gravity_gauge;
@@ -33,46 +33,30 @@ struct IterationState
     sf::Text training_time_rt;
 
     explicit
-    IterationState(Vec2 size_, Vec2 position_ = {})
+    IterationState(Vec2 const size_, Vec2 const position_ = {})
         : size{size_}
         , position{position_}
         , background{size - 2.0f * outline_vec, background_radius, {50, 50, 50}}
         , background_outline{size, background_radius + outline, color}
-        , font{&pez::resources::getFont("font")}
+        , font{pez::resources::getFont("font")}
+        , title{font, "Iteration", 24}
+        , iteration_idx{font, "", 48}
+        , training_time{font, "", 22}
+        , training_time_label{font, "Simulated training time", 16}
+        , training_time_rt{font, "", 22}
+        , training_time_rt_label{font, "Real time training time", 16}
     {
-        title.setString("Iteration");
-        title.setFont(*font);
-        title.setCharacterSize(24);
         title.setFillColor({150, 150, 150});
-
-        iteration_idx.setString("");
-        iteration_idx.setFont(*font);
-        iteration_idx.setCharacterSize(48);
         iteration_idx.setFillColor(sf::Color::White);
 
-        training_time.setString("");
-        training_time.setFont(*font);
-        training_time.setCharacterSize(22);
         training_time.setFillColor(sf::Color::White);
 
-        training_time_label.setString("");
-        training_time_label.setFont(*font);
-        training_time_label.setCharacterSize(16);
         training_time_label.setFillColor({150, 150, 150});
-
         training_time_label.setString("Simulated training time");
 
-        training_time_rt.setString("");
-        training_time_rt.setFont(*font);
-        training_time_rt.setCharacterSize(22);
         training_time_rt.setFillColor(sf::Color::White);
 
-        training_time_rt_label.setString("");
-        training_time_rt_label.setFont(*font);
-        training_time_rt_label.setCharacterSize(16);
         training_time_rt_label.setFillColor({150, 150, 150});
-
-        training_time_rt_label.setString("Real time training time");
 
         setPosition(position);
     }
@@ -112,16 +96,16 @@ struct IterationState
         friction_gauge.setPosition({position_.x + margin, current_y});
 
         current_y += 64.0f;
-        training_time_label.setPosition(position_.x + margin, current_y);
+        training_time_label.setPosition({position_.x + margin, current_y});
 
         current_y += 20.0f;
-        training_time.setPosition(position_.x + margin, current_y);
+        training_time.setPosition({position_.x + margin, current_y});
 
         current_y += 40.0f;
-        training_time_rt_label.setPosition(position_.x + margin, current_y);
+        training_time_rt_label.setPosition({position_.x + margin, current_y});
 
         current_y += 20.0f;
-        training_time_rt.setPosition(position_.x + margin, current_y);
+        training_time_rt.setPosition({position_.x + margin, current_y});
     }
 
     void render(pez::render::Context& context)
@@ -131,7 +115,7 @@ struct IterationState
         background.renderHud(context);
 
         // Render title
-        title.setScale(font_scale, font_scale);
+        title.setScale({font_scale, font_scale});
         context.drawDirect(title);
 
         context.drawDirect(iteration_idx);

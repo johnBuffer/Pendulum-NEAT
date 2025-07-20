@@ -13,14 +13,14 @@ struct BarGraphWidget
     Vec2  const outline_vec       = {outline, outline};
     sf::Color   outline_color     = sf::Color::White;
 
-    Vec2       size;
-    Vec2       position;
-    BarGraph   chart;
-    Card       background;
-    Card       outline_background;
-    sf::Font*  font;
-    sf::Text   title;
-    sf::Text   current_value;
+    Vec2            size;
+    Vec2            position;
+    BarGraph        chart;
+    Card            background;
+    Card            outline_background;
+    sf::Font const& font;
+    sf::Text        title;
+    sf::Text        current_value;
 
     sf::VertexArray va_scale;
     sf::Color const scale_color  = {150, 150, 150};
@@ -33,28 +33,24 @@ struct BarGraphWidget
     std::function<std::string(float)>    current_value_callback;
 
     explicit
-    BarGraphWidget(Vec2 size_, Vec2 position_ = {})
+    BarGraphWidget(Vec2 const size_, Vec2 const position_ = {})
         : size{size_}
         , position{position_}
         , background{size - 2.0f * outline_vec, background_radius, {50, 50, 50}}
         , outline_background{size, background_radius + outline, outline_color}
         , chart{Vec2{size.x, size.y - title_height} - 2.0f * (padding + outline_vec)}
-        , font{&pez::resources::getFont("font")}
+        , font{pez::resources::getFont("font")}
         , va_scale{sf::PrimitiveType::Lines}
         , inner_size{size.x - padding.x - outline, size.y - padding.y - outline - title_height}
+        , title{font, "Title", 24}
+        , current_value{font, "", 20}
     {
-        title.setString("Title");
-        title.setFont(*font);
-        title.setCharacterSize(24);
         title.setFillColor(sf::Color::White);
-
-        current_value.setFont(*font);
-        current_value.setCharacterSize(20);
         current_value.setFillColor(sf::Color::White);
 
         setPosition(position);
 
-        label_callback = [](uint32_t i) {
+        label_callback = [](uint32_t const i) {
             return toString(i);
         };
 
@@ -93,9 +89,7 @@ struct BarGraphWidget
 
     void render(pez::render::Context& context)
     {
-        sf::Text scale_label;
-        scale_label.setFont(*font);
-        scale_label.setCharacterSize(18);
+        sf::Text scale_label{font, "", 18};
         scale_label.setFillColor(scale_color);
 
         // Render background
@@ -170,15 +164,15 @@ struct BarGraphWidget
             uint32_t const current_i = chart.getGlobalValueIndex(i);
             if (current_i % tick_x_period == 0) {
                 scale_label.setString(label_callback(current_i));
-                float const label_width = scale_label.getGlobalBounds().width;
-                scale_label.setPosition(x - label_width * 0.5f, position.y + size.y - padding.y - outline);
+                float const label_width = scale_label.getGlobalBounds().size.x;
+                scale_label.setPosition({x - label_width * 0.5f, position.y + size.y - padding.y - outline});
                 context.drawDirect(scale_label);
             }
         });
 
         if (chart.data.getCount()) {
             current_value.setString(current_value_callback(last_value));
-            current_value.setPosition(position.x + size.x - outline - padding.x - current_value.getGlobalBounds().width, title.getPosition().y);
+            current_value.setPosition({position.x + size.x - outline - padding.x - current_value.getGlobalBounds().size.x, title.getPosition().y});
             context.drawDirect(current_value);
         }
 

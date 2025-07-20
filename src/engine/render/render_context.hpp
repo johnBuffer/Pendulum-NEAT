@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/common/vec.hpp"
-#include "engine/common/event_manager.hpp"
+#include "engine/common/events.hpp"
 #include <SFML/Graphics.hpp>
 
 #include "viewport_handler.hpp"
@@ -16,20 +16,20 @@ public:
 
     IVec2 m_size = {};
 
-    void registerCallbacks(sfev::EventManager& event_manager, bool use_viewport_callbacks)
+    void registerCallbacks(pez::EventHandler& event_manager, bool use_viewport_callbacks)
     {
-        event_manager.addEventCallback(sf::Event::MouseMoved, [&](sfev::CstEv) {
-            m_viewport_handler.setMousePosition(event_manager.getFloatMousePosition());
+        event_manager.addCallback<sf::Event::MouseMoved>([&](sf::Event::MouseMoved const& event) {
+            //m_viewport_handler.setMousePosition(event_manager.getFloatMousePosition());
         });
         if (use_viewport_callbacks) {
-            event_manager.addMousePressedCallback(sf::Mouse::Left, [&](sfev::CstEv) {
-                m_viewport_handler.click(event_manager.getFloatMousePosition());
+            event_manager.onMousePressed(sf::Mouse::Button::Left, [&](sf::Event::MouseButtonPressed const&) {
+                //m_viewport_handler.click(event_manager.getFloatMousePosition());
             });
-            event_manager.addMouseReleasedCallback(sf::Mouse::Left, [&](sfev::CstEv) {
+            event_manager.onMouseReleased(sf::Mouse::Button::Left, [&](sf::Event::MouseButtonReleased const&) {
                 m_viewport_handler.unclick();
             });
-            event_manager.addEventCallback(sf::Event::MouseWheelScrolled, [&](sfev::CstEv e) {
-                m_viewport_handler.wheelZoom(e.mouseWheelScroll.delta);
+            event_manager.addCallback<sf::Event::MouseWheelScrolled>([&](sf::Event::MouseWheelScrolled const& e) {
+                m_viewport_handler.wheelZoom(e.delta);
             });
         }
     }
@@ -60,17 +60,17 @@ public:
         return m_render_size;
     }
 
-    void draw(sf::Drawable& drawable)
+    void draw(sf::Drawable const& drawable) const
     {
         m_window->draw(drawable, m_viewport_handler.getTransform());
     }
 
-    void draw(sf::Drawable& drawable, sf::Transform const& transform)
+    void draw(sf::Drawable const& drawable, sf::Transform const& transform) const
     {
         m_window->draw(drawable, m_viewport_handler.getTransform() * transform);
     }
 
-    void draw(sf::Drawable& drawable, sf::RenderStates const& states)
+    void draw(sf::Drawable const& drawable, sf::RenderStates const& states) const
     {
         sf::RenderStates final_states = states;
         final_states.transform = m_viewport_handler.getTransform() * states.transform;
@@ -82,7 +82,7 @@ public:
         m_window->draw(drawable);
     }
 
-    void drawDirect(sf::Drawable& drawable, sf::Transform const& transform)
+    void drawDirect(sf::Drawable const& drawable, sf::Transform const& transform)
     {
         m_window->draw(drawable, transform);
     }

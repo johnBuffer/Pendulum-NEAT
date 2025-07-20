@@ -30,11 +30,11 @@ struct ViewportHandler
         {
             transform = {};
             transform.translate(center);
-            transform.scale(zoom, zoom);
+            transform.scale({zoom, zoom});
             transform.translate(offset);
         }
 
-        void updateMousePosition(Vec2 new_position)
+        void updateMousePosition(Vec2 const new_position)
         {
             mouse_position = new_position;
             mouse_world_position = offset + (mouse_position * scale - center) / (zoom * scale);

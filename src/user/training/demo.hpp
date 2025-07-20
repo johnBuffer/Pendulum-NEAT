@@ -7,7 +7,7 @@
 namespace training
 {
 
-struct Demo : public pez::core::IProcessor
+struct Demo final : public pez::core::IProcessor
 {
     TrainingState&  state;
     tp::ThreadPool& thread_pool;
@@ -24,9 +24,11 @@ struct Demo : public pez::core::IProcessor
         max_friction = state.configuration.solver_friction;
     }
 
+    virtual ~Demo() = default;
+
     void initialize();
 
-    void update(float dt) override
+    void update(float const dt) override
     {
         if (!state.demo) {
             return;

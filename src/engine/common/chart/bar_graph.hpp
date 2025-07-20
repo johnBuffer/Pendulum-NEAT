@@ -1,9 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-#include "engine/engine.hpp"
 #include "engine/common/math.hpp"
 #include "engine/common/racc.hpp"
+#include "engine/common/quad_vertex_array.hpp"
 #include "engine/render/render_context.hpp"
 
 struct BarGraph
@@ -14,8 +14,8 @@ struct BarGraph
     uint32_t        samples_count = 0;
 
     // Geometry
-    sf::VertexArray va_bar;
-    sf::VertexArray va_lines;
+    pez::QuadVertexArray va_bar;
+    pez::QuadVertexArray va_lines;
     sf::Transform transform;
 
     Vec2 size           = {};
@@ -27,21 +27,19 @@ struct BarGraph
     sf::Color accent_color;
 
     explicit
-    BarGraph(sf::Vector2f size_)
+    BarGraph(sf::Vector2f const size_)
         : data(100)
         , size{size_}
-        , va_bar{sf::PrimitiveType::Quads}
-        , va_lines{sf::PrimitiveType::Quads}
         , accent_color{sf::Color::Red}
     {}
 
-    void draw(pez::render::Context& context)
+    void draw(pez::render::Context& context) const
     {
-        context.drawDirect(va_bar, transform);
-        context.drawDirect(va_lines, transform);
+        context.drawDirect(va_bar.asVertexArray(), transform);
+        context.drawDirect(va_lines.asVertexArray(), transform);
     }
 
-    void addValue(float value)
+    void addValue(float const value)
     {
         ++samples_count;
         data.addValueBase(value);
@@ -68,39 +66,33 @@ struct BarGraph
         float const zero_y      = size.y - extremes.x * height_coef;
 
         // Update array sizes
-        va_bar.resize(4 * slice_size);
-        va_lines.resize(4 * slice_size);
+        va_bar.resize(slice_size);
+        va_lines.resize(slice_size);
 
         // Update geometry
-        data.foreach([&](uint32_t i, float v) {
+        data.foreach([&](uint32_t const i, float const v) {
             float const height = v * height_coef;
             float const x      = to<float>(i) * (bar_width + space_x);
             float const y      = zero_y - height;
-            va_bar[4 * i + 0].position = {x            , zero_y};
-            va_bar[4 * i + 1].position = {x            , y};
-            va_bar[4 * i + 2].position = {x + bar_width, y};
-            va_bar[4 * i + 3].position = {x + bar_width, zero_y};
+            va_bar.setVertex0Position(i, {x            , zero_y});
+            va_bar.setVertex0Position(i, {x            ,      y});
+            va_bar.setVertex0Position(i, {x + bar_width,      y});
+            va_bar.setVertex0Position(i, {x + bar_width, zero_y});
 
             sf::Color const color = {accent_color.r, accent_color.g, accent_color.b, 50};
-            va_bar[4 * i + 0].color = color;
-            va_bar[4 * i + 1].color = color;
-            va_bar[4 * i + 2].color = color;
-            va_bar[4 * i + 3].color = color;
+            va_bar.setQuadColor(i, color);
 
             float const header_size = std::min(header_height, std::abs(height));
             float const header_dir  = (height > 0.0f) ? -1.0f : 1.0f;
-            va_lines[4 * i + 0].position = {x            , y + header_dir * header_size};
-            va_lines[4 * i + 1].position = {x            , y};
-            va_lines[4 * i + 2].position = {x + bar_width, y};
-            va_lines[4 * i + 3].position = {x + bar_width, y + header_dir * header_size};
-            va_lines[4 * i + 0].color = accent_color;
-            va_lines[4 * i + 1].color = accent_color;
-            va_lines[4 * i + 2].color = accent_color;
-            va_lines[4 * i + 3].color = accent_color;
+            va_lines.setVertex0Position(i, {x            , y + header_dir * header_size});
+            va_lines.setVertex0Position(i, {x            ,                            y});
+            va_lines.setVertex0Position(i, {x + bar_width,                            y});
+            va_lines.setVertex0Position(i, {x + bar_width, y + header_dir * header_size});
+            va_lines.setQuadColor(i, accent_color);
         });
     }
 
-    void setColor(sf::Color color)
+    void setColor(sf::Color const color)
     {
         accent_color = color;
     }

@@ -16,30 +16,28 @@ struct MultiGraphWidget
     Vec2 extremes_x = {-1.0f, 1.0f};
     Vec2 extremes_y = {-1.0f, 1.0f};
 
-    Vec2       size;
-    Vec2       position;
-    Card       background;
-    Card       outline_background;
-    sf::Font*  font;
-    sf::Text   title;
-    float      font_scale = 1.0f;
+    Vec2            size;
+    Vec2            position;
+    Card            background;
+    Card            outline_background;
+    sf::Font const& font;
+    sf::Text        title;
+    float           font_scale = 1.0f;
 
     std::vector<Vec2>        points;
     std::vector<SmoothFloat> width;
     sf::VertexArray          va_line;
 
     explicit
-    MultiGraphWidget(Vec2 size_, Vec2 position_ = {})
+    MultiGraphWidget(Vec2 const size_, Vec2 const position_ = {})
         : size{size_}
         , position{position_}
         , background{size - 2.0f * outline_vec, background_radius, {50, 50, 50}}
         , outline_background{size, background_radius + outline, color}
-        , font{&pez::resources::getFont("font")}
+        , font{pez::resources::getFont("font")}
         , va_line{sf::PrimitiveType::TriangleStrip}
+        , title{font, "Title", 24}
     {
-        title.setString("Title");
-        title.setFont(*font);
-        title.setCharacterSize(24);
         title.setFillColor(sf::Color::White);
 
         setPosition(position);
@@ -129,7 +127,7 @@ struct MultiGraphWidget
         }
 
         // Render title
-        title.setScale(font_scale, font_scale);
+        title.setScale({font_scale, font_scale});
         context.drawDirect(title);
     }
 

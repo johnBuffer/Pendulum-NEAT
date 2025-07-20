@@ -1,37 +1,33 @@
-cmake_minimum_required(VERSION 3.10)
-set(PROJECT_NAME Pendulum)
-project(${PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.16)
+project(Pendulum LANGUAGES CXX)
 
-file(GLOB_RECURSE source_files
-    "src/*.cpp"
-)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+
+include(FetchContent)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
+FetchContent_Declare(SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 3.0.x)
+FetchContent_MakeAvailable(SFML)
+
+include(FetchContent)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
+# Automatically adds all cpp files contained in the src directory
+file(GLOB_RECURSE source_files src/*.cpp)
 
 set(SOURCES ${source_files})
 
-# Detect and add SFML
-find_package(SFML 2 REQUIRED COMPONENTS network audio graphics window system)
-
-add_executable(${PROJECT_NAME} ${WIN32_GUI} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE "src" "lib")
-set(SFML_LIBS sfml-system sfml-window sfml-graphics sfml-audio)
-target_link_libraries(${PROJECT_NAME} ${SFML_LIBS})
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-if (UNIX)
-   target_link_libraries(${PROJECT_NAME} pthread)
-endif (UNIX)
-
-if(MSVC)
-  #target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
-else()
-  #target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 # Copy res dir to the binary directory
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-if(MSVC)
-   foreach(lib ${SFML_LIBS})
-      get_target_property(lib_path ${lib} LOCATION)
-      file(COPY ${lib_path} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-   endforeach()
-endif(MSVC)
+add_custom_command(
+        TARGET ${PROJECT_NAME}
+        COMMENT "Copy Res directory"
+        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:${PROJECT_NAME}>/res
+        VERBATIM)

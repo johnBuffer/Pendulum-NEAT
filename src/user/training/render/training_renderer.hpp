@@ -43,10 +43,9 @@ struct TrainingRenderer
         , fitness{1.5f * graph_size}
         , gravity_plot{graph_size}
         , friction_plot{graph_size}
-        , time_state{{42, 157, 143}}
+        , network_renderer{pez::resources::getFont("font")}
+        , time_state{pez::resources::getFont("font"), {42, 157, 143}}
     {
-        time_state.setFont(pez::resources::getFont("font"));
-
         Vec2 const render_size = pez::render::getRenderSize();
 
         fitness.chart.setColor(hud_accent_color);
@@ -72,11 +71,9 @@ struct TrainingRenderer
         friction_plot.setPosition({graph_start_x + graph_size.x + card_margin, fitness.position.y + fitness.size.y + card_margin});
         friction_plot.setTitle("Friction");
         friction_plot.height_round = 0.001f;
-        friction_plot.current_value_callback = [](float x) {
+        friction_plot.current_value_callback = [](float const x) {
             return toString(x, 10);
         };
-
-        network_renderer.setFont(pez::resources::getFont("font"));
 
         time_state.setPosition({card_margin, card_margin});
     }

@@ -69,6 +69,7 @@ struct DemoRenderer
         , visu_angle_vs{{}}
         , iteration_state({})
         , scene_state{{}}
+        , network_renderer{font}
     {
         auto const& state = pez::core::getSingleton<TrainingState>();
 
@@ -82,9 +83,6 @@ struct DemoRenderer
 
         // Agent
         agent_renderer.cart.offset.y = slider.thickness + slider.corner_radius;
-
-        // Network renderer
-        network_renderer.setFont(font);
 
         // Plots
         float const graph_height = conf::net::control_type == conf::ControlType::Acceleration ? 403.0f : 369.0f;
@@ -155,7 +153,9 @@ struct DemoRenderer
         tracer_tip.setColor(agent_renderer.getJointColor(AgentRenderer::Mode::Solid, 2));
         tracer_mid.setColor(agent_renderer.getJointColor(AgentRenderer::Mode::Solid, 1));
 
-        arrow_texture.loadFromFile("res/arrow.png");
+        if (!arrow_texture.loadFromFile("res/arrow.png")) {
+            std::cout << "Could not load arrow texture" << std::endl;
+        }
     }
 
     void render(pez::render::Context& context)
@@ -182,12 +182,12 @@ struct DemoRenderer
         Disturbances::Push const& push = scene_best.getCurrentPush();
         if (scene_best.isActive(push)) {
             auto const force = to<float>(push.force);
-            Vec2 const size{8, 5};
+            Vec2 constexpr size{8, 5};
             sf::RectangleShape arrow{size};
-            arrow.setOrigin(size.x, size.y * 0.5f);
+            arrow.setOrigin({size.x, size.y * 0.5f});
             arrow.setTexture(&arrow_texture);
             arrow.setPosition(Vec2{scene_best.agent.system.objects[1].getWorldPosition(1)});
-            arrow.setScale(force, force);
+            arrow.setScale({force, force});
             auto const alpha = to<uint8_t>(std::max(0.0f, 255.0f));
             arrow.setFillColor({255, 255, 255, uint8_t(alpha)});
             context.draw(arrow);
@@ -258,17 +258,15 @@ struct DemoRenderer
 
     void drawHorizontalTicks(pez::render::Context& context)
     {
-        float const   tick_width = 10.0f;
-        int32_t const tick_count = 30;
+        float constexpr   tick_width = 10.0f;
+        int32_t constexpr tick_count = 30;
 
-        float const mid_length = 10.0f;
+        float constexpr mid_length = 10.0f;
         float const y_offset   = conf::sim::world_size.y * 0.5f + 40.0f;
-        sf::VertexArray mid_line{sf::Lines, 4 * tick_count + 2};
+        sf::VertexArray mid_line{sf::PrimitiveType::Lines, 4 * tick_count + 2};
 
-        sf::Text text;
-        text.setFont(font);
-        text.setCharacterSize(60);
-        float const scale = 0.4f;
+        sf::Text text{font, "", 60};
+        float constexpr scale = 0.4f;
 
         uint32_t idx{0};
         for (int32_t i{-tick_count}; i <= tick_count; ++i) {
@@ -279,13 +277,13 @@ struct DemoRenderer
 
             if (i % 10 == 0) {
                 if (i) {
-                    text.setScale(0.5f * scale, 0.5f * scale);
+                    text.setScale({0.5f * scale, 0.5f * scale});
                 } else {
-                    text.setScale(1.0f * scale, 1.0f * scale);
+                    text.setScale({1.0f * scale, 1.0f * scale});
                 }
 
                 text.setString(toString(i * tick_width, 0));
-                text.setPosition(x - text.getGlobalBounds().width * 0.5f - 3.5f * text.getScale().x, y_offset + mid_length + 2.0f);
+                text.setPosition({x - text.getGlobalBounds().size.x * 0.5f - 3.5f * text.getScale().x, y_offset + mid_length + 2.0f});
                 context.draw(text);
 
                 mid_line[2 * idx + 0].color = accent_color;
