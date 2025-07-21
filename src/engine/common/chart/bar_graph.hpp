@@ -75,9 +75,9 @@ struct BarGraph
             float const x      = to<float>(i) * (bar_width + space_x);
             float const y      = zero_y - height;
             va_bar.setVertex0Position(i, {x            , zero_y});
-            va_bar.setVertex0Position(i, {x            ,      y});
-            va_bar.setVertex0Position(i, {x + bar_width,      y});
-            va_bar.setVertex0Position(i, {x + bar_width, zero_y});
+            va_bar.setVertex1Position(i, {x            ,      y});
+            va_bar.setVertex2Position(i, {x + bar_width,      y});
+            va_bar.setVertex3Position(i, {x + bar_width, zero_y});
 
             sf::Color const color = {accent_color.r, accent_color.g, accent_color.b, 50};
             va_bar.setQuadColor(i, color);
@@ -85,9 +85,9 @@ struct BarGraph
             float const header_size = std::min(header_height, std::abs(height));
             float const header_dir  = (height > 0.0f) ? -1.0f : 1.0f;
             va_lines.setVertex0Position(i, {x            , y + header_dir * header_size});
-            va_lines.setVertex0Position(i, {x            ,                            y});
-            va_lines.setVertex0Position(i, {x + bar_width,                            y});
-            va_lines.setVertex0Position(i, {x + bar_width, y + header_dir * header_size});
+            va_lines.setVertex1Position(i, {x            ,                            y});
+            va_lines.setVertex2Position(i, {x + bar_width,                            y});
+            va_lines.setVertex3Position(i, {x + bar_width, y + header_dir * header_size});
             va_lines.setQuadColor(i, accent_color);
         });
     }
